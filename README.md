@@ -1,2 +1,2 @@
 # Audio-Visualizer-Spicetify
-El q lo lea e gay
+"Please donate us to keep working on this product"
