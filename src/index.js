@@ -1,8 +1,6 @@
 ;(function () {
     const SETTINGS_KEY = 'spicetify_visualizer_settings'
-    let settings = {
-        mode: 'bars', // o "waves"
-    }
+    let settings = { mode: 'bars' }
 
     try {
         const stored = localStorage.getItem(SETTINGS_KEY)
@@ -24,13 +22,17 @@
     async function getCoverColor() {
         try {
             const img = document.querySelector('.main-nowPlayingWidget-coverArt-image img')
-            if (!img) return 'lime'
+            if (!img || !img.src) return 'white'
 
+            const imageURL = img.src.split('?')[0] // quitar parámetros
             const cover = new Image()
-            cover.crossOrigin = 'Anonymous' // What is this, we need to search about
-            cover.src = img.src
+            cover.crossOrigin = 'Anonymous'
+            cover.src = imageURL
 
-            await new Promise((res) => (cover.onload = res))
+            await new Promise((res, rej) => {
+                cover.onload = res
+                cover.onerror = rej
+            })
 
             const tempCanvas = document.createElement('canvas')
             const ctx = tempCanvas.getContext('2d')
@@ -55,15 +57,13 @@
 
             return `rgb(${r},${g},${b})`
         } catch {
-            return 'lime'
+            return 'white'
         }
     }
 
     function getFakeVolume() {
-        // this variable is never used, check what this actually do.
         const volBar = document.querySelector('[aria-label="Volumen"] .progress-bar__bg')
         const volFill = document.querySelector('[aria-label="Volumen"] .progress-bar__fg')
-
         if (volBar && volFill) {
             const total = volBar.getBoundingClientRect().width
             const filled = volFill.getBoundingClientRect().width
@@ -82,75 +82,73 @@
         if (document.getElementById('my-visualizer')) return
 
         const visualizer = document.createElement('div')
+        visualizer.id = 'my-visualizer'
         visualizer.style.position = 'absolute'
         visualizer.style.left = '0'
-        visualizer.style.right = '0'
-        visualizer.style.top = '0'
         visualizer.style.bottom = '0'
+        visualizer.style.width = '100%'
+        visualizer.style.height = '100%'
         visualizer.style.pointerEvents = 'none'
-        visualizer.style.zIndex = '0' // Push behind other elements
+        visualizer.style.zIndex = '1'
+        visualizer.style.background = 'transparent'
 
         const canvas = document.createElement('canvas')
-        canvas.width = bar.clientWidth
-        canvas.height = bar.clientHeight
+        canvas.style.position = 'absolute'
         canvas.style.width = '100%'
         canvas.style.height = '100%'
+        canvas.style.top = '0'
+        canvas.style.left = '0'
+        canvas.width = window.innerWidth
+        canvas.height = bar.getBoundingClientRect().height
 
         visualizer.appendChild(canvas)
         bar.style.position = 'relative'
-        bar.style.overflow = 'hidden'
-        bar.appendChild(visualizer)
+        bar.prepend(visualizer)
 
         const ctx = canvas.getContext('2d')
-        const numBars = Math.min(Math.floor(canvas.width / 10), 60)
+        const numBars = 100
         let bars = Array(numBars).fill(0)
         let targetHeights = Array(numBars).fill(0)
         let color = 'lime'
         let wavePhase = 0
 
         async function updateColor() {
-            color = await getCoverColor()
+            const newColor = await getCoverColor()
+            color = newColor
         }
 
         updateColor()
 
-        const observer = new MutationObserver(() => {
-            updateColor()
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (
+                    mutation.type === 'childList' ||
+                    (mutation.type === 'attributes' && mutation.attributeName === 'src')
+                ) {
+                    updateColor()
+                    break
+                }
+            }
         })
 
         const trackInfo = await waitForElement('.main-nowPlayingWidget-nowPlaying')
-        observer.observe(trackInfo, { childList: true, subtree: true })
-
-        // function animate() {
-        //     const volume = getFakeVolume()
-        //     const volumeFactor = Math.max(0.2, volume)
-
-        //     if (settings.mode === 'bars') {
-        //         for (let i = 0; i < numBars; i++) {
-        //             if (Math.random() < 0.05) {
-        //                 targetHeights[i] = Math.random() * canvas.height * volumeFactor
-        //             }
-        //             bars[i] += (targetHeights[i] - bars[i]) * 0.05
-        //         }
-        //     }
-
-        let lastBeatUpdate = 0
+        observer.observe(trackInfo, { childList: true, subtree: true, attributes: true })
 
         function animate() {
-            const now = performance.now()
+            const volume = getFakeVolume()
+            const volumeFactor = Math.max(0.2, volume)
 
-            if (now - lastBeatUpdate > 100) {
+            if (settings.mode === 'bars') {
                 for (let i = 0; i < numBars; i++) {
-                    if (Math.random() < 0.1) {
+                    if (Math.random() < 0.05) {
                         targetHeights[i] = Math.random() * canvas.height * volumeFactor
                     }
-                    bars[i] += targetHeights[i] - bars[i] * 0.2
+                    bars[i] += (targetHeights[i] - bars[i]) * 0.05
                 }
-                lastBeatUpdate = now
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height)
-            canvas.style.filter = `drop-shadow(0 0 4px ${color})` // Reducing this, is like simulating the RTX in a game instead of actually using it.
+            ctx.shadowBlur = 15
             ctx.shadowColor = color
             ctx.fillStyle = color
 
@@ -180,18 +178,10 @@
         }
 
         animate()
-        console.log(animate())
 
-        // Cambio de modo con doble clic (solo para ti, no interfiere con Spotify)
-        window.addEventListener('dblclick', () => {
+        window.addEventListener('tripleclick', () => {
             settings.mode = settings.mode === 'bars' ? 'waves' : 'bars'
             saveSettings()
-        })
-
-        // Actualiza cuando se cambia el tamaño de la app.
-        window.addEventListener('resize', () => {
-            canvas.width = bar.clientWidth
-            canvas.height = bar.clientHeight
         })
     }
 
