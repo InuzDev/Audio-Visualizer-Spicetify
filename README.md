@@ -1,3 +1,2 @@
 # Audio-Visualizer-Spicetify
-
-Spicetify Audio Visualizer plugin
+"Please donate us to keep working on this product"
