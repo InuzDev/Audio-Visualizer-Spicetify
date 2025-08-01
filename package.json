@@ -1,0 +1,24 @@
+{
+  "name": "audio-visualizer-spicetify",
+  "version": "1.0.0",
+  "description": "El q lo lea e gay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InuzDev/Audio-Visualizer-Spicetify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/InuzDev/Audio-Visualizer-Spicetify/issues"
+  },
+  "homepage": "https://github.com/InuzDev/Audio-Visualizer-Spicetify#readme",
+  "devDependencies": {
+    "esbuild": "^0.25.8"
+  }
+}
