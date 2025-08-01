@@ -27,7 +27,7 @@
             if (!img) return 'lime'
 
             const cover = new Image()
-            cover.crossOrigin = 'Anonymous'
+            cover.crossOrigin = 'Anonymous' // What is this, we need to search about
             cover.src = img.src
 
             await new Promise((res) => (cover.onload = res))
@@ -60,6 +60,7 @@
     }
 
     function getFakeVolume() {
+        // this variable is never used, check what this actually do.
         const volBar = document.querySelector('[aria-label="Volumen"] .progress-bar__bg')
         const volFill = document.querySelector('[aria-label="Volumen"] .progress-bar__fg')
 
@@ -179,6 +180,7 @@
         }
 
         animate()
+        console.log(animate())
 
         // Cambio de modo con doble clic (solo para ti, no interfiere con Spotify)
         window.addEventListener('dblclick', () => {
