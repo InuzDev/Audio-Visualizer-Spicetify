@@ -1,17 +1,20 @@
 {
   "name": "audio-visualizer-spicetify",
   "version": "1.0.0",
-  "description": "El q lo lea e gay",
-  "main": "index.js",
+  "description": "A beat-reactive audio visualizer overlay",
+  "main": "dist/audio-visualizer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "esbuild src/index.js --bundle --outfile=dist/audio-visualizer.js --format=iife --target=es2020"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/InuzDev/Audio-Visualizer-Spicetify.git"
   },
   "keywords": [],
-  "author": "",
+  "authors": [
+    "Wuwu4601",
+    "InuzDev"
+  ],
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
