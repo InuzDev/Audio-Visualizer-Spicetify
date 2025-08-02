@@ -4,7 +4,7 @@
   "description": "A beat-reactive audio visualizer overlay",
   "main": "dist/audio-visualizer.js",
   "scripts": {
-    "build": "esbuild src/index.js --bundle --outfile=dist/audio-visualizer.js --format=iife --target=es2020"
+    "build": "esbuild theme.js --bundle --outfile=dist/audio-visualizer.js --format=iife --target=es2020"
   },
   "repository": {
     "type": "git",
